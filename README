@@ -7,7 +7,9 @@ README
 
 Supporting_Documentation/hila5spec.pdf
 
-	Specification of
+	Specification of the HILA5 KEM and Public Key Encryption algorithm.	
+	Organized per NIST's call for post-quantum proposals.
+
 
 LICENSE
 
@@ -18,13 +20,15 @@ LICENSE
 KAT/PQCkemKAT_1824.req
 KAT/PQCkemKAT_1824.rsp
 
-	Request and Response NIST KAT (Known Answer Test) data.
+	NIST Known Answer Test (KAT) data, automatically generated.
+
 
 KAT/src/PQCgenKAT_kem.c
 KAT/src/rng.h
 KAT/src/rng.c
 
-	Code to generate KAT files (used by testing code)
+	Code to generate KAT files (used by testing code). Slightly
+	modified to kill of errors.
 
 
 Reference_Implementation/api.h
