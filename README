@@ -13,7 +13,7 @@ Supporting_Documentation/hila5spec.pdf
 
 LICENSE
 
-	MIT License (which is very permissive), and applies to all code
+	MIT License (which is very permissive). Applies to all code
 	in this distribution.
 
 
@@ -27,8 +27,8 @@ KAT/src/PQCgenKAT_kem.c
 KAT/src/rng.h
 KAT/src/rng.c
 
-	Code to generate KAT files (used by testing code). Slightly
-	modified to kill of errors.
+	Code to generate KAT files (used by testing code) from NIST. 
+	Slightly modified to eliminate some warnings.
 
 
 Reference_Implementation/api.h
