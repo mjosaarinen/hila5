@@ -37,8 +37,8 @@ Reference_Implementation/hila5_sha3.h
 Reference_Implementation/hila5_sha3.c
 Reference_Implementation/Makefile
 
-	Tony C99 Reference implementation. This is really slow and should 
-	not bt used for production. For testing, you may try "make test", 
+	Tiny C99 Reference implementation. This is really slow and should 
+	not be used for production. For testing, you may try "make test", 
 	which will generate KEM files and compare those with the real ones.
 
 
