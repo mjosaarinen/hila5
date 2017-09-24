@@ -2,7 +2,7 @@
 // 2017-05-07  Markku-Juhani O. Saarinen <mjos@iki.fi>
 
 // Implementation of FIPS-202 SHA3 hashes and SHAKE XOFs.
-// (This is the small version for the HILA5 reference implementaion.}
+// (This is a small version for the HILA5 reference implementation.}
 
 #include "hila5_sha3.h"
 
