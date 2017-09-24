@@ -1,0 +1,52 @@
+
+README
+
+	This file, a description of every file in the distribution.
+	2017-09-24  Markku-JUhani O. Saarinen <mjos@iki.fi>
+	
+
+Supporting_Documentation/hila5spec.pdf
+
+	Specification of
+
+LICENSE
+
+	MIT License (which is very permissive), and applies to all code
+	in this distribution.
+
+
+KAT/PQCkemKAT_1824.req
+KAT/PQCkemKAT_1824.rsp
+
+	Request and Response NIST KAT (Known Answer Test) data.
+
+KAT/src/PQCgenKAT_kem.c
+KAT/src/rng.h
+KAT/src/rng.c
+
+	Code to generate KAT files (used by testing code)
+
+
+Reference_Implementation/api.h
+Reference_Implementation/kem.c
+Reference_Implementation/hila5_sha3.h
+Reference_Implementation/hila5_sha3.c
+Reference_Implementation/Makefile
+
+	Tony C99 Reference implementation. This is really slow and should 
+	not bt used for production. For testing, you may try "make test", 
+	which will generate KEM files and compare those with the real ones.
+
+
+Optimized_Implementation/api.h
+Optimized_Implementation/kem.c
+Optimized_Implementation/hila5_sha3.h
+Optimized_Implementation/hila5_sha3.c
+Optimized_Implementation/ms_ntt.c
+Optimized_Implementation/ms_priv.h
+Optimized_Implementation/ms_ntt_const.c
+Optimized_Implementation/Makefile
+
+	C99 Optimized implementaion, which uses the proper NTT algorithms.
+	Here you may also do a "make test."
+
