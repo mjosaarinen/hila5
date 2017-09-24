@@ -2,8 +2,6 @@
 # 2017-09-23  Markku-Juhani O. Saarinen <mjos@iki.fi>
 # (Reference Implementation)
 
-# This one generates the genkat_ref binary.
-
 BIN	= genkat_ref
 OBJS	= kem.o hila5_sha3.o \
 	../KAT/src/rng.o ../KAT/src/PQCgenKAT_kem.o
