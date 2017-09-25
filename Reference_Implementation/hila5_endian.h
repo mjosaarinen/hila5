@@ -1,8 +1,8 @@
 // hlia5_endian.h
 // 2017-09-25  Markku-Juhani O. Saarinen <mjos@iki.fi>
 
-// Flips 64-bit words in in vectr v[n] around if this appears to be a
-// little-endian platform. A no-op otherwise.
+// Flips 64-bit words in in vector v[n] around if this appears to be a
+// big-endian platform. A no-op otherwise.
 
 #ifndef HILA5_ENDIAN_FLIP64
 
