@@ -144,7 +144,7 @@ static void xe5_fix(uint64_t d[4], const uint64_t r[4])
     for (i = 0; i < 4; i++) {           // four words
         for (j = 1; j < 10; j++) {
             l = xe5_len[j];             // length
-            x = ri[j] & ((1lu << l) - 1);   // mask
+            x = ri[j] & ((1llu << l) - 1);   // mask
             x |= x << l;                // expand
             if (l < 32)                 // extra unfold
                 x |= (x << (2 * l));
