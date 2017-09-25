@@ -3,7 +3,7 @@
 # (Optimized Implementation)
 
 BIN	= genkat_opt
-OBJS	= kem.o hila5_sha3.o ms_ntt.o ms_ntt_const.o \
+OBJS	= kem.o hila5_sha3_opt.o ms_ntt.o ms_ntt_const.o \
 	../KAT/src/rng.o ../KAT/src/PQCgenKAT_kem.o
 DIST	= hila5ref
 

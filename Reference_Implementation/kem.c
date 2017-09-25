@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "hila5_sha3.h"
+#include "hila5_endian.h"
 
 // Parameters
 
@@ -208,7 +209,7 @@ static void hila5_parse(int32_t v[HILA5_N],
 {
     hila5_sha3_ctx_t sha3;              // init SHA3 state for SHAKE-256
     uint8_t buf[2];                     // two byte output buffer
-    int32_t x;                          // random variable
+    uint32_t x;                          // random variable
 
     hila5_shake256_init(&sha3);         // initialize the context
     hila5_shake_update(&sha3, seed, HILA5_SEED_LEN);    // seed input
@@ -218,7 +219,7 @@ static void hila5_parse(int32_t v[HILA5_N],
     for (int i = 0; i < HILA5_N; i++) {
         do {                            // rejection sampler
             hila5_shake_out(&sha3, buf, 2); // two bytes from SHAKE-256
-            x = ((int32_t) buf[0]) + (((int32_t) buf[1]) << 8); // endianess
+            x = ((uint32_t) buf[0]) + (((uint32_t) buf[1]) << 8); // endianess
         } while (x >= 5 * HILA5_Q);     // reject
         v[i] = x;                       // reduction (mod q) unnecessary
     }
@@ -300,16 +301,17 @@ static void xe5_cod(uint64_t r[4], const uint64_t d[4])
             if (l < 32)                 // extra fold
                 t ^= t >> (2 * l);
             t ^= t >> l;                // fold
-            ri[j] = t & ((1lu << l) - 1);   // mask
+            ri[j] = t & ((1llu << l) - 1);   // mask
         }
         x ^= x >> 8;                    // parity of 16
         x ^= x >> 4;
         x ^= x >> 2;
         x ^= x >> 1;
-        x &= 0x0001000100010001;        // four parallel
+        x &= 0x0001000100010001llu;       // four parallel
         x ^= (x >> (16 - 1)) ^ (x >> (32 - 2)) ^ (x >> (48 - 3));
         ri[0] |= (x & 0xF) << (4 * i);
     }
+
     // pack coefficients into 240 bits (note output the XOR)
     r[0] ^= ri[0] ^ (ri[1] << 16) ^ (ri[2] << 32) ^ (ri[3] << 49);
     r[1] ^= (ri[3] >> 15) ^ (ri[4] << 16) ^ (ri[5] << 35);
@@ -404,6 +406,8 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
 
 // Encapsulate
 
+typedef unsigned long long ull_t;
+
 int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
                     uint8_t *ss,        // HILA5_KEY_LEN = 32
                     const uint8_t *pk)  // HILA5_PUBKEY_LEN = 1824
@@ -435,7 +439,10 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
     if (i == HILA5_MAX_ITER)            // too many repeats -- fail hard
         return -1;
 
+    HILA5_ENDIAN_FLIP64(z, 8);
     xe5_cod(&z[4], z);                  // create linear error correction code
+    HILA5_ENDIAN_FLIP64(z, 8);
+
     memcpy(ct + HILA5_PACKED14 + HILA5_PACKED1 + HILA5_PAYLOAD_LEN,
         &z[4], HILA5_ECC_LEN);          // ct = .. | encrypted error cor. code
 
@@ -519,8 +526,10 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
         ((uint8_t *) &z[4])[i] ^=
             ct[HILA5_PACKED14 + HILA5_PACKED1 + HILA5_PAYLOAD_LEN + i];
     }
+    HILA5_ENDIAN_FLIP64(z, 8);
     xe5_cod(&z[4], z);                  // linear code
     xe5_fix(z, &z[4]);                  // fix possible errors
+    HILA5_ENDIAN_FLIP64(z, 8);
 
     hila5_sha3_init(&sha3, HILA5_KEY_LEN);              // final hash
     hila5_sha3_update(&sha3, "HILA5v10", 8);            // version identifier
