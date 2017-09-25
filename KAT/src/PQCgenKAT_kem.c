@@ -72,10 +72,9 @@ main()
     done = 0;
     do {
         if ( FindMarker(fp_req, "count = ") ) {
-			// xx added this check of fscanf() return value
-            if (fscanf(fp_req, "%d", &count) == 0) {
-	            done = 1;
-	            break;
+            if (fscanf(fp_req, "%d", &count) != 1) {
+				done = 1;	// added by mjos 2017-09-25: kills a warning
+				break;
 			}
         } else {
             done = 1;
@@ -131,19 +130,27 @@ main()
 //
 // ALLOW TO READ HEXADECIMAL ENTRY (KEYS, DATA, TEXT, etc.)
 //
+//
+// ALLOW TO READ HEXADECIMAL ENTRY (KEYS, DATA, TEXT, etc.)
+//
 int
 FindMarker(FILE *infile, const char *marker)
 {
 	char	line[MAX_MARKER_LEN];
 	int		i, len;
+	int curr_line;
 
 	len = (int)strlen(marker);
 	if ( len > MAX_MARKER_LEN-1 )
 		len = MAX_MARKER_LEN-1;
 
 	for ( i=0; i<len; i++ )
-		if ( (line[i] = fgetc(infile)) == EOF )
-			return 0;
+	  {
+	    curr_line = fgetc(infile);
+	    line[i] = curr_line;
+	    if (curr_line == EOF )
+	      return 0;
+	  }
 	line[len] = '\0';
 
 	while ( 1 ) {
@@ -152,8 +159,10 @@ FindMarker(FILE *infile, const char *marker)
 
 		for ( i=0; i<len-1; i++ )
 			line[i] = line[i+1];
-		if ( (line[len-1] = fgetc(infile)) == EOF )
-			return 0;
+		curr_line = fgetc(infile);
+		line[len-1] = curr_line;
+		if (curr_line == EOF )
+		    return 0;
 		line[len] = '\0';
 	}
 
