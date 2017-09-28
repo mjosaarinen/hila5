@@ -246,36 +246,6 @@ static void hila5_psi16(int32_t v[HILA5_N])
     }
 }
 
-
-// == Generate a keypair =====================================================
-
-int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
-                        uint8_t *sk)    // HILA5_PRIVKEY_LEN = 1824
-{
-    int32_t a[HILA5_N], e[HILA5_N], t[HILA5_N];
-
-    init_pow1945();                     // make sure initialized
-
-    // Create secret key
-    hila5_psi16(t);                     // (t is a temporary variable)
-    slow_ntt(a, t, 27);                 // a = 3**3 * NTT(Psi_16)
-
-    // Public pey
-    hila5_psi16(t);                     // t = Psi_16
-    slow_ntt(e, t, 27);                 // e = 3**3 * NTT(Psi_16) -- noise
-    randombytes(pk, HILA5_SEED_LEN);    // Random seed for g
-    hila5_parse(t, pk);                 // (t =) g = parse(seed)
-    slow_vmul(t, a, t);
-    slow_vadd(t, t, e);                 // A = NTT(g * a + e)
-    hila5_pack14(pk + HILA5_SEED_LEN, t);   // pk = seed | A
-
-    hila5_pack14(sk, a);                // pack secret key
-    // SHA3 hash of pubic key is stored with secret key due to API limitation
-    hila5_sha3(pk, HILA5_PUBKEY_LEN, sk + HILA5_PACKED14, 32);
-
-    return 0;                           // SUCCESS
-}
-
 // == Error Correction Code XE5 ==============================================
 
 //  Field       subcodeword:     r0  r1  r2  r3  r4  r5  r6  r7  r8  r9 (end)
@@ -368,6 +338,36 @@ static void xe5_fix(uint64_t d[4], const uint64_t r[4])
 }
 
 
+// == Generate a keypair =====================================================
+
+int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
+                        uint8_t *sk)    // HILA5_PRIVKEY_LEN = 1824
+{
+    int32_t a[HILA5_N], e[HILA5_N], t[HILA5_N];
+
+    init_pow1945();                     // make sure initialized
+
+    // Create secret key
+    hila5_psi16(t);                     // (t is a temporary variable)
+    slow_ntt(a, t, 27);                 // a = 3**3 * NTT(Psi_16)
+
+    // Public pey
+    hila5_psi16(t);                     // t = Psi_16
+    slow_ntt(e, t, 27);                 // e = 3**3 * NTT(Psi_16) -- noise
+    randombytes(pk, HILA5_SEED_LEN);    // Random seed for g
+    hila5_parse(t, pk);                 // (t =) g = parse(seed)
+    slow_vmul(t, a, t);
+    slow_vadd(t, t, e);                 // A = NTT(g * a + e)
+    hila5_pack14(pk + HILA5_SEED_LEN, t);   // pk = seed | A
+
+    hila5_pack14(sk, a);                // pack secret key
+    // SHA3 hash of pubic key is stored with secret key due to API limitation
+    hila5_sha3(pk, HILA5_PUBKEY_LEN, sk + HILA5_PACKED14, 32);
+
+    return 0;                           // SUCCESS
+}
+
+
 // == Encapsulation ==========================================================
 
 // Create a bit selector, reconciliation bits, and payload;
@@ -405,8 +405,6 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
 }
 
 // Encapsulate
-
-typedef unsigned long long ull_t;
 
 int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
                     uint8_t *ss,        // HILA5_KEY_LEN = 32
