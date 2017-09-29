@@ -1,5 +1,5 @@
 // kem.c
-// 2017-09-23   Markku-Juhani O. Saarinen <mjos@iki.fi>
+// 2017-09-23  Markku-Juhani O. Saarinen <mjos@iki.fi>
 
 // Slow (but compact and readable) reference implementation of HILA5 v 1.0.
 

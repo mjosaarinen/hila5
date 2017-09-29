@@ -1,7 +1,7 @@
-// hila5opt.c
+// kem.c
 // 2017-09-09  Markku-Juhani O. Saarinen <mjos@iki.fi>
 
-// Optimized C99 implementation of HILA5 KEM
+// Optimized C99 implementation of HILA5 KEM.
 
 #include <stdint.h>
 #include <string.h>
