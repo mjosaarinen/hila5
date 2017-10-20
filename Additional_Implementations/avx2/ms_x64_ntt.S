@@ -38,10 +38,6 @@ PERM0246:
 PRIME8x:
     .long   12289, 12289, 12289, 12289, 12289, 12289, 12289, 12289
 
-ONE32x:
-    .byte   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    .byte   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-
 MASK12x8:
     .long   4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095
 
@@ -56,51 +52,6 @@ PERM0145:
 
 PERM2367:
     .quad   2, 3, 6, 7
-
-MASK32:
-    .quad   4294967295, 0, 4294967295, 0
-
-MASK42:
-    .quad   4397778075648, 0, 4397778075648, 0
-
-MASK14_1:
-    .quad   16383, 0, 16383, 0
-
-MASK14_2:
-    .quad   268419072, 0, 268419072, 0 
-
-MASK14_3:
-    .quad   4397778075648, 0, 4397778075648, 0
-
-MASK14_4:
-    .quad   72053195991416832, 0, 72053195991416832, 0
-
-ONE8x:
-    .long   1, 1, 1, 1, 1, 1, 1, 1
-
-THREE8x:
-    .long   3, 3, 3, 3, 3, 3, 3, 3
-
-FOUR8x:
-    .long   4, 4, 4, 4, 4, 4, 4, 4
-
-PARAM_Q4x8:
-    .long   3073, 3073, 3073, 3073, 3073, 3073, 3073, 3073
-
-PARAM_3Q4x8:
-    .long   9217, 9217, 9217, 9217, 9217, 9217, 9217, 9217
-
-PARAM_5Q4x8:
-    .long   15362, 15362, 15362, 15362, 15362, 15362, 15362, 15362
-
-PARAM_7Q4x8:
-    .long   21506, 21506, 21506, 21506, 21506, 21506, 21506, 21506
-
-PARAM_Q2x8:
-    .long   6145, 6145, 6145, 6145, 6145, 6145, 6145, 6145
-
-PARAM_3Q2x8:
-    .long   18434, 18434, 18434, 18434, 18434, 18434, 18434, 18434
 
 // code
 
@@ -982,85 +933,3 @@ lazo4:
   jl         lazo4
   ret
 
-
-//***********************************************************************
-//  Encoding
-//  Operation: c [reg_p2] <- a [reg_p1]
-//*********************************************************************** 
-.global encode_asm
-encode_asm: 
-  vmovdqu    ymm6, MASK32 
-  vmovdqu    ymm7, MASK42
-  mov        r9, 1024
-  xor        rax, rax
-  xor        r10, r10
-  mov        r11, 14
-  mov        rcx, 8
-lazo5:
-  vmovdqu    ymm0, YMMWORD PTR [reg_p1+4*rax]   // a
-
-  vpsrlq     ymm1, ymm0, 18  
-  vpsllq     ymm2, ymm0, 4
-  vpand      ymm0, ymm0, ymm6
-  vpsrldq    ymm2, ymm2, 5   
-  vpsrlq     ymm3, ymm1, 4
-  vpand      ymm1, ymm1, ymm6
-  vpand      ymm2, ymm2, ymm7
-  vpsrldq    ymm3, ymm3, 4 
-  vpor       ymm0, ymm0, ymm1
-  vpor       ymm0, ymm0, ymm2 
-  vpor       ymm0, ymm0, ymm3 
-  vpermq     ymm1, ymm0, 0x0e   
-
-  vmovdqu    XMMWORD PTR [reg_p2+r10], xmm0
-  vmovdqu    XMMWORD PTR [reg_p2+r10+7], xmm1
-
-  add        r10, r11
-  add        rax, rcx        // j+8
-  cmp        rax, r9
-  jl         lazo5
-  ret
-
-
-//***********************************************************************
-//  Decoding
-//  Operation: c [reg_p2] <- a [reg_p1]
-//*********************************************************************** 
-.global decode_asm
-decode_asm: 
-  vmovdqu    ymm6, MASK14_1 
-  vmovdqu    ymm7, MASK14_2
-  vmovdqu    ymm8, MASK14_3
-  vmovdqu    ymm9, MASK14_4
-  mov        r9, 1024
-  xor        rax, rax
-  xor        r10, r10
-  mov        r11, 14
-  mov        rcx, 8
-lazo6:
-  vmovdqu    xmm0, XMMWORD PTR [reg_p1+r10]
-  vmovdqu    xmm1, XMMWORD PTR [reg_p1+r10+7]
-  vinserti128 ymm0, ymm0, xmm1, 1               
-
-  vpand      ymm1, ymm0, ymm6
-  vpand      ymm2, ymm0, ymm7
-  vpand      ymm3, ymm0, ymm8
-  vpand      ymm4, ymm0, ymm9
-   
-  vpsllq     ymm2, ymm2, 18 
-  vpsllq     ymm3, ymm3, 4
-  vpslldq    ymm3, ymm3, 4 
-  vpsrlq     ymm4, ymm4, 2
-  vpslldq    ymm4, ymm4, 7
-
-  vpor       ymm1, ymm1, ymm2 
-  vpor       ymm1, ymm1, ymm3 
-  vpor       ymm1, ymm1, ymm4 
-  
-  vmovdqu    YMMWORD PTR [reg_p2+4*rax], ymm1   
-
-  add        r10, r11
-  add        rax, rcx            // j+8
-  cmp        rax, r9
-  jl         lazo6
-  ret
