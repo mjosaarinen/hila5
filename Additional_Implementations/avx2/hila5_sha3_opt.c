@@ -4,7 +4,6 @@
 // Implementation of FIPS-202 SHA3 hashes and SHAKE XOFs.
 
 #include "hila5_sha3.h"
-#include "hila5_endian.h"
 
 // Keccak F function -- This version originally from Ronny Van Keer
 
@@ -37,8 +36,6 @@ static void hila5_sha3_keccakf(uint64_t state[25])
     uint64_t Eka, Eke, Eki, Eko, Eku;
     uint64_t Ema, Eme, Emi, Emo, Emu;
     uint64_t Esa, Ese, Esi, Eso, Esu;
-
-    HILA5_ENDIAN_FLIP64(state, 25);
 
     //copyFromState(A, state)
     Aba = state[0];
@@ -285,8 +282,6 @@ static void hila5_sha3_keccakf(uint64_t state[25])
     state[22] = Asi;
     state[23] = Aso;
     state[24] = Asu;
-
-    HILA5_ENDIAN_FLIP64(state, 25);
 }
 
 // Initialize the context for SHA3

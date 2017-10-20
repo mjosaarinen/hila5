@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "hila5_sha3.h"
-#include "hila5_endian.h"
 #include "ms_priv.h"
 
 // Parameters
@@ -352,9 +351,7 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
     if (i == HILA5_MAX_ITER)
         return -1;
 
-    HILA5_ENDIAN_FLIP64(z, 8);
     xe5_cod(&z[4], z);                      // error correction
-    HILA5_ENDIAN_FLIP64(z, 8);
 
     memcpy(ct + HILA5_PACKED14 + HILA5_PACKED1 + HILA5_PAYLOAD_LEN,
         &z[4], HILA5_ECC_LEN);
@@ -421,10 +418,8 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
         ((uint8_t *) &z[4])[i] ^=
             ct[HILA5_PACKED14 + HILA5_PACKED1 + HILA5_PAYLOAD_LEN + i];
     }
-    HILA5_ENDIAN_FLIP64(z, 8);
     xe5_cod(&z[4], z);
     xe5_fix(z, &z[4]);
-    HILA5_ENDIAN_FLIP64(z, 8);
 
     // hash the ciphertext
     hila5_sha3(ct, HILA5_CIPHERTEXT_LEN, hct, 32);
