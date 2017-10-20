@@ -6,10 +6,10 @@ BIN	= genkat_avx2
 OBJS	= kem.o hila5_sha3_opt.o ms_ntt_misc.o ms_ntt_const.o ms_x64_ntt.o \
 	../../KAT/src/rng.o ../../KAT/src/PQCgenKAT_kem.o
 
-CC	= clang
+CC	= gcc
 CFLAGS	= -Wall -Ofast -march=native
 LIBS	= -lcrypto
-LDFLAGS	=
+LDFLAGS	= -no-pie
 INCS	= -I.
 
 $(BIN): $(OBJS)
