@@ -5,7 +5,6 @@
 BIN	= genkat_opt
 OBJS	= kem.o hila5_sha3_opt.o ms_ntt.o ms_ntt_const.o \
 	../KAT/src/rng.o ../KAT/src/PQCgenKAT_kem.o
-DIST	= hila5ref
 
 CC	= gcc
 CFLAGS	= -std=c99 -Wall -Ofast

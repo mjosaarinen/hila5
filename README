@@ -63,7 +63,7 @@ Optimized_Implementation/ms_ntt_const.c
 Optimized_Implementation/hila5_endian.h
 Optimized_Implementation/Makefile
 
-	C99 Optimized implementaion, which uses the proper NTT algorithms.
+	C99 Optimized implementation, which uses the proper NTT algorithms.
 	Here you may also do a "make test."
 
 	Main functionality is provided by kem.c. hila5_sha_opt.c provides
@@ -72,3 +72,19 @@ Optimized_Implementation/Makefile
 	(ms_ntt*) have been adopted (= heavily hacked) from Microsoft's
 	free lattice library, released under MIT license.
 
+
+Additional_Implementations/avx2/api.h
+Additional_Implementations/avx2/hila5_endian.h
+Additional_Implementations/avx2/hila5_sha3.h
+Additional_Implementations/avx2/hila5_sha3_opt.c
+Additional_Implementations/avx2/kem.c
+Additional_Implementations/avx2/Makefile
+Additional_Implementations/avx2/ms_ntt_const.c
+Additional_Implementations/avx2/ms_ntt_misc.c
+Additional_Implementations/avx2/ms_priv.h
+Additional_Implementations/avx2/ms_x64_ntt.S
+
+	AVX2 Optimized Implementation. Very similar to the Optimized 
+	Implementation; adopts vectorized AVX2 instruction set NTT code from
+	Microsoft Lattice Library.
+	

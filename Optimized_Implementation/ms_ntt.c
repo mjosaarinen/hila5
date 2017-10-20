@@ -26,7 +26,6 @@ static int32_t mslc_reduce12289(int64_t a)
     return (3 * c0 - c1);
 }
 
-
 // Two merged reductions modulo q
 
 static int32_t mslc_reduce12289_2x(int64_t a) 
@@ -39,7 +38,6 @@ static int32_t mslc_reduce12289_2x(int64_t a)
 
     return (9 * c0 - 3 * c1 + c2);
 }
-
 
 // Forward NTT
 
