@@ -81,6 +81,51 @@ static void hila5_unpack14(int32_t v[HILA5_N],
     }
 }
 
+
+// generate n uniform samples from the seed
+
+static void hila5_parse(int32_t v[HILA5_N],
+                        const uint8_t seed[HILA5_SEED_LEN])
+{
+    hila5_sha3_ctx_t sha3;              // init SHA3 state for SHAKE-256
+    uint8_t buf[2];                     // two byte output buffer
+    int32_t x;                          // random variable
+
+    hila5_shake256_init(&sha3);         // initialize the context
+    hila5_shake_update(&sha3, seed, HILA5_SEED_LEN);    // seed input
+    hila5_shake_xof(&sha3);             // pad context to output mode
+
+    // fill the vector with uniform samples
+    for (int i = 0; i < HILA5_N; i++) {
+        do {                            // rejection sampler
+            hila5_shake_out(&sha3, buf, 2); // two bytes from SHAKE-256
+            x = ((int32_t) buf[0]) + (((int32_t) buf[1]) << 8); // endianess
+        } while (x >= 5 * HILA5_Q);     // reject
+        v[i] = x;                       // reduction (mod q) unnecessary
+    }
+}
+
+// sample a vector of values from the psi16 distribution
+
+static void hila5_psi16(int32_t v[HILA5_N])
+{
+    uint32_t x = 0;                     // 32-bit variable
+
+    for (int i = 0; i < HILA5_N; i++) {
+
+        randombytes((unsigned char *) &x, sizeof(x));   // get 4 random bytes
+
+        x -= (x >> 1) & 0x55555555;     // Hamming weight
+        x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+        x = (x + (x >> 4)) & 0x0F0F0F0F;
+        x += x >> 8;
+        x = (x + (x >> 16)) & 0x3F;
+
+        x -= 16;                        // Make signed in range [0, q-1]
+        v[i] = x + (-((x >> 31) & 1) & HILA5_Q);    // "constant time"
+    }
+}
+
 // == Error Correction Code XE5 ==============================================
 
 //  Field       subcodeword:     r0  r1  r2  r3  r4  r5  r6  r7  r8  r9 (end)
@@ -171,48 +216,41 @@ static void xe5_fix(uint64_t d[4], const uint64_t r[4])
     }
 }
 
-// generate n uniform samples from the seed
+// === main functionality ==
 
-static void hila5_parse(int32_t v[HILA5_N],
-                        const uint8_t seed[HILA5_SEED_LEN])
+// key generation
+
+int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
+                        uint8_t *sk)    // HILA5_PRIVKEY_LEN = 1824
 {
-    hila5_sha3_ctx_t sha3;              // init SHA3 state for SHAKE-256
-    uint8_t buf[2];                     // two byte output buffer
-    int32_t x;                          // random variable
+    int32_t a[HILA5_N], e[HILA5_N], t[HILA5_N];
 
-    hila5_shake256_init(&sha3);         // initialize the context
-    hila5_shake_update(&sha3, seed, HILA5_SEED_LEN);    // seed input
-    hila5_shake_xof(&sha3);             // pad context to output mode
+    // Secret key
+    hila5_psi16(a);                         // a = NTT(Psi_16)
+    mslc_ntt(a, mslc_psi_rev_ntt1024, HILA5_N);
 
-    // fill the vector with uniform samples
-    for (int i = 0; i < HILA5_N; i++) {
-        do {                            // rejection sampler
-            hila5_shake_out(&sha3, buf, 2); // two bytes from SHAKE-256
-            x = ((int32_t) buf[0]) + (((int32_t) buf[1]) << 8); // endianess
-        } while (x >= 5 * HILA5_Q);     // reject
-        v[i] = x;                       // reduction (mod q) unnecessary
-    }
-}
+    // Public key
+    hila5_psi16(e);                         // e = NTT(Psi_16)
+    mslc_ntt(e, mslc_psi_rev_ntt1024, HILA5_N);
+    randombytes(pk, HILA5_SEED_LEN);        // Random seed for g (=t)
+    hila5_parse(t, pk);                     // g = Parse(seed);
+    mslc_pmuladd(t, a, e, t, HILA5_N);      // t = NTT(g * a + e)
+    mslc_correction(t, HILA5_Q, HILA5_N);
+    hila5_pack14(pk + HILA5_SEED_LEN, t);   // pk = seed | A
 
-// sample a vector of values from the psi16 distribution
+    // Pack private key: sk = a | SHA3(pk)
+    // Hash of pubic key is stored with secret key due to API limitation.
+    mslc_two_reduce12289(a, HILA5_N);
+    mslc_correction(a, HILA5_Q, HILA5_N);
+    hila5_pack14(sk, a);
+    hila5_sha3(pk, HILA5_PUBKEY_LEN, sk + HILA5_PACKED14, 32);
 
-static void hila5_psi16(int32_t v[HILA5_N])
-{
-    uint32_t x = 0;                     // 32-bit variable
+    // Try to clear out sensitive data
+    memset(t, 0x00, sizeof(t));
+    memset(e, 0x00, sizeof(e));
+    memset(a, 0x00, sizeof(a));
 
-    for (int i = 0; i < HILA5_N; i++) {
-
-        randombytes((unsigned char *) &x, sizeof(x));   // get 4 random bytes
-
-        x -= (x >> 1) & 0x55555555;     // Hamming weight
-        x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
-        x = (x + (x >> 4)) & 0x0F0F0F0F;
-        x += x >> 8;
-        x = (x + (x >> 16)) & 0x3F;
-
-        x -= 16;                        // Make signed in range [0, q-1]
-        v[i] = x + (-((x >> 31) & 1) & HILA5_Q);    // "constant time"
-    }
+    return 0;
 }
 
 
@@ -250,71 +288,10 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
     return j;                           // FAIL: not enough bits
 }
 
-// Decode selected key bits. Return nonzero on failure.
-
-static int hila5_select(uint8_t pld[HILA5_PAYLOAD_LEN],
-    const uint8_t sel[HILA5_PACKED1],
-    const uint8_t rec[HILA5_PAYLOAD_LEN],
-    const int32_t v[HILA5_N])
-{
-    int i, j, x;
-
-    memset(pld, 0, HILA5_PAYLOAD_LEN);  // set payload to all zeros
-
-    j = 0;
-    for (i = 0; i < HILA5_N; i++) {     // scan for selected bits
-        if ((sel[i >> 3] >> (i & 7)) & 1) {
-            x = v[i] + HILA5_Q / 8;     // reconciliation:
-            x -= -((rec[j >> 3] >> (j & 7)) & 1) &
-                    (HILA5_Q / 4);      // "90 degrees" if rec bit set
-            x = ((2 * ((x + HILA5_Q) % HILA5_Q)) / HILA5_Q);
-            pld[j >> 3] ^= (x & 1) << (j & 7);
-            j++;
-            if (j >= 8 * HILA5_PAYLOAD_LEN)
-                return 0;               // got full payload
-        }
-    }
-
-    return j;                           // FAIL: not enough bits
-}
 
 
-// === main functionality ==
 
-// key generation
 
-int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
-                        uint8_t *sk)    // HILA5_PRIVKEY_LEN = 1824
-{
-    int32_t a[HILA5_N], e[HILA5_N], t[HILA5_N];
-
-    // Secret key
-    hila5_psi16(a);                         // a = NTT(Psi_16)
-    mslc_ntt(a, mslc_psi_rev_ntt1024, HILA5_N);
-
-    // Public key
-    hila5_psi16(e);                         // e = NTT(Psi_16)
-    mslc_ntt(e, mslc_psi_rev_ntt1024, HILA5_N);
-    randombytes(pk, HILA5_SEED_LEN);        // Random seed for g (=t)
-    hila5_parse(t, pk);                     // g = Parse(seed);
-    mslc_pmuladd(t, a, e, t, HILA5_N);      // t = NTT(g * a + e)
-    mslc_correction(t, HILA5_Q, HILA5_N);
-    hila5_pack14(pk + HILA5_SEED_LEN, t);   // pk = seed | A
-
-    // Pack private key: sk = a | SHA3(pk)
-    // Hash of pubic key is stored with secret key due to API limitation.
-    mslc_two_reduce12289(a, HILA5_N);
-    mslc_correction(a, HILA5_Q, HILA5_N);
-    hila5_pack14(sk, a);
-    hila5_sha3(pk, HILA5_PUBKEY_LEN, sk + HILA5_PACKED14, 32);
-
-    // Try to clear out sensitive data
-    memset(t, 0x00, sizeof(t));
-    memset(e, 0x00, sizeof(e));
-    memset(a, 0x00, sizeof(a));
-
-    return 0;
-}
 
 // Encapsulate
 
@@ -389,6 +366,34 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
     return 0;
 }
 
+// Decode selected key bits. Return nonzero on failure.
+
+static int hila5_select(uint8_t pld[HILA5_PAYLOAD_LEN],
+    const uint8_t sel[HILA5_PACKED1],
+    const uint8_t rec[HILA5_PAYLOAD_LEN],
+    const int32_t v[HILA5_N])
+{
+    int i, j, x;
+
+    memset(pld, 0, HILA5_PAYLOAD_LEN);  // set payload to all zeros
+
+    j = 0;
+    for (i = 0; i < HILA5_N; i++) {     // scan for selected bits
+        if ((sel[i >> 3] >> (i & 7)) & 1) {
+            x = v[i] + HILA5_Q / 8;     // reconciliation:
+            x -= -((rec[j >> 3] >> (j & 7)) & 1) &
+                    (HILA5_Q / 4);      // "90 degrees" if rec bit set
+            x = ((2 * ((x + HILA5_Q) % HILA5_Q)) / HILA5_Q);
+            pld[j >> 3] ^= (x & 1) << (j & 7);
+            j++;
+            if (j >= 8 * HILA5_PAYLOAD_LEN)
+                return 0;               // got full payload
+        }
+    }
+
+    return j;                           // FAIL: not enough bits
+}
+
 // Decapsulate
 
 int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
@@ -406,7 +411,7 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
     mslc_pmul(c, s, c, HILA5_N);
 
     // scaling factors
-    // 8281 = sqrt(-1) * 2^-10 * 3^-12
+    // 3651 = sqrt(-1) * 2^-10 * 3^-12
     // 4958 = 2^-10 * 3^-12
     mslc_intt(c, mslc_inv_rev_ntt1024, 3651, 4958, HILA5_N);
     mslc_two_reduce12289(c, HILA5_N);

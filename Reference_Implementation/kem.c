@@ -351,7 +351,7 @@ int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
     hila5_psi16(t);                     // (t is a temporary variable)
     slow_ntt(a, t, 27);                 // a = 3**3 * NTT(Psi_16)
 
-    // Public pey
+    // Public key
     hila5_psi16(t);                     // t = Psi_16
     slow_ntt(e, t, 27);                 // e = 3**3 * NTT(Psi_16) -- noise
     randombytes(pk, HILA5_SEED_LEN);    // Random seed for g
@@ -429,7 +429,7 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
         slow_smul(t, 1416);             // scale by 1416 = 1 / (3**6 * 1024)
 
         // Safe bits -- may fail (with about 1% probability);
-        memset(z, 0, sizeof(z));        // ct = .. | sel | sec, z = payload
+        memset(z, 0, sizeof(z));        // ct = .. | sel | rec, z = payload
         if (hila5_safebits(ct + HILA5_PACKED14, //
             ct + HILA5_PACKED14 + HILA5_PACKED1, (uint8_t *) z, t) == 0)
             break;
