@@ -167,7 +167,7 @@ void mslc_pmuladd(const int32_t *a, const int32_t *b, const int32_t *c,
 { 
     unsigned int i;
 
-    for (i = 0; i < 1024; i++) {
+    for (i = 0; i < n; i++) {
         d[i] = mslc_reduce12289((int64_t) a[i] * b[i] + c[i]);
         d[i] = mslc_reduce12289((int64_t) d[i]);
     }

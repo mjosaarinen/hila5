@@ -406,7 +406,7 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
     mslc_pmul(c, s, c, HILA5_N);
 
     // scaling factors
-    // 8281 = sqrt(-1) * 2^-10 * 3^-12
+    // 3651 = sqrt(-1) * 2^-10 * 3^-12
     // 4958 = 2^-10 * 3^-12
     mslc_intt(c, mslc_inv_rev_ntt1024, 3651, 4958, HILA5_N);
     mslc_two_reduce12289(c, HILA5_N);
