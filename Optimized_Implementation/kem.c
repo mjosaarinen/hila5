@@ -81,6 +81,7 @@ static void hila5_unpack14(int32_t v[HILA5_N],
     }
 }
 
+// == Samplers ===============================================================
 
 // generate n uniform samples from the seed
 
@@ -216,7 +217,7 @@ static void xe5_fix(uint64_t d[4], const uint64_t r[4])
     }
 }
 
-// === main functionality ==
+// === Main functionality ====================================================
 
 // key generation
 
@@ -287,11 +288,6 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
     }
     return j;                           // FAIL: not enough bits
 }
-
-
-
-
-
 
 // Encapsulate
 
