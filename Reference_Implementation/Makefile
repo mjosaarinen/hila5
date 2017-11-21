@@ -6,14 +6,13 @@ BIN	= genkat_ref
 OBJS	= kem.o hila5_sha3_ref.o \
 	../KAT/src/rng.o ../KAT/src/PQCgenKAT_kem.o
 
-CC	= gcc
-CFLAGS	= -std=c99 -Wall -Ofast
-LIBS	= -lcrypto
-LDFLAGS	=
-INCS	= -I.
+CC	?= gcc
+CFLAGS	+= -std=c99 -Wall -Ofast -I.
+LDLIBS	+= -lcrypto
+LDFLAGS	+=
 
 $(BIN): $(OBJS)
-	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LDLIBS)
 
 test:	$(BIN)
 	./$(BIN)
@@ -23,7 +22,7 @@ test:	$(BIN)
 	make clean
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJS) $(BIN) PQCkemKAT_1824.*
