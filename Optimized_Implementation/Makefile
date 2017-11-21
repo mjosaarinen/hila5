@@ -6,14 +6,13 @@ BIN	= genkat_opt
 OBJS	= kem.o hila5_sha3_opt.o ms_ntt.o ms_ntt_const.o \
 	../KAT/src/rng.o ../KAT/src/PQCgenKAT_kem.o
 
-CC	= gcc
-CFLAGS	= -std=c99 -Wall -Ofast
-LIBS	= -lcrypto
-LDFLAGS	=
-INCS	= -I.
+CC	?= gcc
+CFLAGS	+= -std=c99 -Wall -Ofast -I.
+LDLIBS	+= -lcrypto
+LDFLAGS	+= -L/usr/local/opt/openssl/lib
 
 $(BIN): $(OBJS)
-	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LDLIBS)
 
 test:	$(BIN)
 	./$(BIN)
