@@ -7,8 +7,6 @@
 #include "hila5_sha3.h"
 #include "hila5_endian.h"
 
-// Small version
-
 #define ROTL64(a, offset) ((a << offset) ^ (a >> (64 - offset)))
 
 void hila5_sha3_keccakf(uint64_t st[25])
