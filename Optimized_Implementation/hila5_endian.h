@@ -8,8 +8,8 @@
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 
-    // nop
-    #define HILA5_ENDIAN_FLIP64(v, n) {;}
+// nop
+#define HILA5_ENDIAN_FLIP64(v, n) {;}
 
 #else
 
