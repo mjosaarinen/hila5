@@ -7,13 +7,12 @@ OBJS	= kem.o hila5_sha3_opt.o ms_ntt_misc.o ms_ntt_const.o ms_x64_ntt.o \
 	../../KAT/src/rng.o ../../KAT/src/PQCgenKAT_kem.o
 
 CC	= gcc
-CFLAGS	= -Wall -Ofast -march=native
-LIBS	= -lcrypto
+CFLAGS	+= -Wall -Ofast -march=native -I.
+LDLIBS	+= -lcrypto
 LDFLAGS	= -no-pie
-INCS	= -I.
 
 $(BIN): $(OBJS)
-	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o $(BIN) $(OBJS) $(LDLIBS)
 
 test:	$(BIN)
 	./$(BIN)
