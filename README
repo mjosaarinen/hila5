@@ -85,5 +85,7 @@ Additional_Implementations/avx2/Makefile
 
 	AVX2 Optimized Implementation. Very similar to the Optimized 
 	Implementation; adopts vectorized AVX2 instruction set NTT code from
-	Microsoft Lattice Library.
-	
+	Microsoft Lattice Library. The assembler code from Microsoft uses
+	".intel_syntax noprefix" and is not position independent so you may 
+	need -no-pie in addition to -march=native option.
+
