@@ -109,7 +109,7 @@ void slow_rmul(int32_t d[HILA5_N],
             x = (x + a[j] * b[i - j]) % HILA5_Q;
         for (int j = i + 1; j < HILA5_N; j++)   // negative wraparound
             x = (x - a[j] * b[HILA5_N + i - j]) % HILA5_Q;
-        // Force into positive [0, q-1] range
+        // Force into positive [0, q-1] range ("constant time" masking)
         d[i] = x + (-((x >> 31) & 1) & HILA5_Q);
     }
 }
