@@ -17,7 +17,7 @@ $(BIN): $(OBJS)
 test:	$(BIN)
 	./$(BIN)
 	@echo "== KAT DIFFERENCE =="
-	@diff PQCkemKAT_1824.rsp ../../KAT/PQCkemKAT_1824.rsp
+	@cmp PQCkemKAT_1824.rsp ../../KAT/PQCkemKAT_1824.rsp
 	@echo "== CLEANUP =="
 	make clean
 
