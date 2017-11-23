@@ -16,10 +16,9 @@ $(BIN): $(OBJS)
 
 test:	$(BIN)
 	./$(BIN)
-	@echo "== KAT DIFFERENCE =="
+	@echo "== BEGIN KAT DIFFERENCE =="
 	@diff PQCkemKAT_1824.rsp ../KAT/PQCkemKAT_1824.rsp
-	@echo "== CLEANUP =="
-	make clean
+	@echo "== END KAT DIFFERENCE =="
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
