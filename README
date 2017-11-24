@@ -1,9 +1,9 @@
 README
 
 	This file, a description of every file in the distribution.
-	2017-11-23  Markku-Juhani O. Saarinen <mjos@iki.fi>
+	2017-11-24  Markku-Juhani O. Saarinen <mjos@iki.fi>
 
-	For more information, see https://mjos.fi/hila5 
+	For more information, see https://mjos.fi/hila5
 
 
 Supporting_Documentation/hila5spec.pdf
@@ -28,38 +28,38 @@ KAT/src/PQCgenKAT_kem.c
 KAT/src/rng.h
 KAT/src/rng.c
 
-	Code to generate KAT files (used by testing code) from NIST. 
+	Code to generate KAT files (used by testing code) from NIST.
 	Slightly modified to eliminate some warnings.
 
 
 Reference_Implementation/api.h
-Reference_Implementation/kem.c
+Reference_Implementation/hila5_endian.h
 Reference_Implementation/hila5_sha3.h
 Reference_Implementation/hila5_sha3_ref.c
-Reference_Implementation/hila5_endian.h
+Reference_Implementation/kem.c
 Reference_Implementation/Makefile
 
 	Tiny C99 Reference implementation. This is optimized for brevity
 	and readability as it is used in specification -- it is therefore
-	really slow and should not be used for production. 
+	really slow and should not be used for production.
 
 	Main functionality is provided by kem.c. A basic SHA3 and SHAKE
-	implementation is contained in hila5_sha3_ref.c. The reference 
+	implementation is contained in hila5_sha3_ref.c. The reference
 	code is fully written by author and submitter.
 
-	For testing, you may try "make test", which will generate KEM 
+	For testing, you may try "make test", which will generate KEM
 	files and compare those with the real ones.
 
 
 Optimized_Implementation/api.h
-Optimized_Implementation/kem.c
+Optimized_Implementation/hila5_endian.h
 Optimized_Implementation/hila5_sha3.h
 Optimized_Implementation/hila5_sha3_opt.c
-Optimized_Implementation/ms_ntt.c
-Optimized_Implementation/ms_priv.h
-Optimized_Implementation/ms_ntt_const.c
-Optimized_Implementation/hila5_endian.h
+Optimized_Implementation/kem.c
 Optimized_Implementation/Makefile
+Optimized_Implementation/ms_ntt.c
+Optimized_Implementation/ms_ntt_const.c
+Optimized_Implementation/ms_priv.h
 
 	C99 Optimized implementation, which uses the proper NTT algorithms.
 	Here you may also do a "make test."
@@ -72,18 +72,19 @@ Optimized_Implementation/Makefile
 
 
 Additional_Implementations/avx2/api.h
-Additional_Implementations/avx2/kem.c
+Additional_Implementations/avx2/hila5_endian.h
 Additional_Implementations/avx2/hila5_sha3.h
 Additional_Implementations/avx2/hila5_sha3_opt.c
+Additional_Implementations/avx2/kem.c
+Additional_Implementations/avx2/Makefile
 Additional_Implementations/avx2/ms_ntt_const.c
 Additional_Implementations/avx2/ms_ntt_misc.c
 Additional_Implementations/avx2/ms_priv.h
 Additional_Implementations/avx2/ms_x64_ntt.S
-Additional_Implementations/avx2/Makefile
 
-	AVX2 Optimized Implementation. Very similar to the Optimized 
+	AVX2 Optimized Implementation. Very similar to the Optimized
 	Implementation; adopts vectorized AVX2 instruction set NTT code from
 	Microsoft Lattice Library. The assembler code from Microsoft uses
-	".intel_syntax noprefix" and is not position independent so you may 
+	".intel_syntax noprefix" and is not position independent so you may
 	need -no-pie in addition to -march=native option.
 
