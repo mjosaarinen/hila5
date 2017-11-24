@@ -398,7 +398,7 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
             pld[j >> 3] ^= (x & 1) << (j & 7);
             j++;                        // payload bit count
             if (j >= 8 * HILA5_PAYLOAD_LEN)
-                return 0;               // success: enough bits
+                return 0;               // SUCCESS: enough bits
         }
     }
     return j;                           // FAIL: not enough bits
@@ -434,7 +434,7 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
             ct + HILA5_PACKED14 + HILA5_PACKED1, (uint8_t *) z, t) == 0)
             break;
     }
-    if (i == HILA5_MAX_ITER)            // too many repeats -- fail hard
+    if (i == HILA5_MAX_ITER)            // FAIL: too many repeats
         return -1;
 
     HILA5_ENDIAN_FLIP64(z, 8);
@@ -488,7 +488,7 @@ static int hila5_select(uint8_t pld[HILA5_PAYLOAD_LEN],
             pld[j >> 3] ^= (x & 1) << (j & 7);
             j++;
             if (j >= 8 * HILA5_PAYLOAD_LEN)
-                return 0;               // got full payload
+                return 0;               // SUCCESS: got full payload
         }
     }
 

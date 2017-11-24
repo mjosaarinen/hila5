@@ -251,7 +251,7 @@ int crypto_kem_keypair( uint8_t *pk,    // HILA5_PUBKEY_LEN = 1824
     memset(e, 0x00, sizeof(e));
     memset(a, 0x00, sizeof(a));
 
-    return 0;
+    return 0;                           // SUCCESS
 }
 
 
@@ -283,7 +283,7 @@ static int hila5_safebits(uint8_t sel[HILA5_PACKED1],
             pld[j >> 3] ^= (x & 1) << (j & 7);
             j++;                        // payload bit count
             if (j >= 8 * HILA5_PAYLOAD_LEN)
-                return 0;               // success: enough bits
+                return 0;               // SUCCESS: enough bits
         }
     }
     return j;                           // FAIL: not enough bits
@@ -322,7 +322,7 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
             ct + HILA5_PACKED14 + HILA5_PACKED1, (uint8_t *) z, b) == 0)
             break;
     }
-    if (i == HILA5_MAX_ITER)
+    if (i == HILA5_MAX_ITER)                // FAIL: too may trials
         return -1;
 
     HILA5_ENDIAN_FLIP64(z, 8);
@@ -359,7 +359,7 @@ int crypto_kem_enc( uint8_t *ct,        // HILA5_CIPHERTEXT_LEN = 2012
     memset(e, 0x00, sizeof(e));
     memset(z, 0x00, sizeof(z));
 
-    return 0;
+    return 0;                           // SUCCESS
 }
 
 // Decode selected key bits. Return nonzero on failure.
@@ -417,7 +417,7 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
     if (hila5_select((uint8_t *) z,         // reconciliation
         ct + HILA5_PACKED14,
         ct + HILA5_PACKED14 + HILA5_PACKED1, c))
-        return -2;
+        return -2;                          // FAIL: not enough bits
     for (i = 0; i < HILA5_ECC_LEN; i++) {   // error correction
         ((uint8_t *) &z[4])[i] ^=
             ct[HILA5_PACKED14 + HILA5_PACKED1 + HILA5_PAYLOAD_LEN + i];
@@ -444,6 +444,6 @@ int crypto_kem_dec( uint8_t *ss,        // HILA5_KEY_LEN = 32
     memset(s, 0x00, sizeof(z));
     memset(z, 0x00, sizeof(z));
 
-    return 0;
+    return 0;                               // SUCCESS
 }
 
