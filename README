@@ -9,7 +9,9 @@ README
 Supporting_Documentation/hila5spec.pdf
 
 	Specification of the HILA5 KEM and Public Key Encryption algorithm.	
-	Organized per NIST's call for post-quantum proposals.
+	Organized per NIST's call for post-quantum proposals. 
+	* Amended on 2018-03-22 to version 1.01, correcting a single mention 
+	of IND-CCA to IND-CPA on Page 17, and adding a reference footnote.
 
 
 LICENSE
